@@ -6,8 +6,7 @@ from db import Db
 
 
 class SanParser:
-    def __init__(self, path_to_file):
-        self.path_to_file = path_to_file
+    def __init__(self):
         self.lines = {}
         self.db = Db()
 

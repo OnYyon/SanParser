@@ -11,7 +11,7 @@ class Db:
         self.con = sql.connect("../_out/temp/data.db")
         self.cur = self.con.cursor()
 
-    def create_tabel(self, table_name: str, *columns):
+    def create_tabel(self, table_name, *columns):
         try:
             pattern = '"' + '", "'.join(map(lambda x: " ".join(x), columns)) + '"'
             self.cur.execute(f'CREATE TABLE IF NOT EXISTS "{table_name}"'
@@ -21,7 +21,7 @@ class Db:
             return False
         return True
 
-    def insert_into_table(self, table_name: str, *args):
+    def insert_into_table(self, table_name, *args):
         try:
             pattern = '", "'.join(args)
             self.cur.execute(f'INSERT INTO "{table_name}" VALUES ("{pattern}");')
@@ -38,6 +38,13 @@ class Db:
         except Exception:
             return False
         return True
+
+    def select(self, table_name, what, need_where=False, where=""):
+        if not need_where:
+            lst = self.cur.execute(f'SELECT {what} FROM {table_name}').fetchall()
+        else:
+            lst = self.cur.execute(f'SELECT {what} FROM {table_name} WHERE {where}').fetchall()
+        return lst
 
     def kill_session(self):
         self.con.close()
