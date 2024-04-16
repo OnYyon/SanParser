@@ -2,7 +2,7 @@ import os
 import fnmatch
 from sqlite3 import OperationalError
 
-from db import Db
+from core.db import Db
 
 
 class SanParser:
@@ -123,6 +123,7 @@ class SanParser:
             if "=" in line:
                 continue
             if flag:
+                print(line)
                 lst = line.strip().split(maxsplit=col)
                 lst_temp = lst[0:col]
                 port = "-"
@@ -143,9 +144,7 @@ class SanParser:
                     else:
                         comment = str_temp
                 temp = "\", \"".join(lst_temp).strip()
-                try:
-                    self.db.insert_into_table(f"switch_{fb_name}_{swt_name}", temp, port, wwn, comment)
-                except OperationalError:
+                if not self.db.insert_into_table(f"switch_{fb_name}_{swt_name}", temp, port, wwn, comment):
                     break
 
     def if_for_service(self, line, name):

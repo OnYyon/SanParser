@@ -1,4 +1,4 @@
-from db import Db
+from core.db import Db
 
 
 class Writer:

@@ -12,7 +12,7 @@ def switch_or_director(path_to_file: str):
             with gzip.GzipFile(f"./_in/{path_to_file}/{files}", "rb") as dec_file:
                 string = dec_file.read()
                 with open(f"_in/{path_to_file}/{files.replace('.gz', '')}", "wb") as f:
-                    f.write(string.decode())
+                    f.write(string)
     except IndexError:
         files = fnmatch.filter(os.listdir(f"./_in/{path_to_file}"), "*SSHOW_SYS*.txt.gz")[0]
         with gzip.GzipFile(f"./_in/{path_to_file}/{files}", "r") as dec_file:

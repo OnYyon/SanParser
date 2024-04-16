@@ -4,11 +4,9 @@ import sqlite3 as sql
 
 class Db:
     def __init__(self):
-        try:
-            os.makedirs("../_out/temp")
-        except FileExistsError:
-            os.remove("../_out/temp/data.db")
-        self.con = sql.connect("../_out/temp/data.db")
+        if not os.path.exists("./_out/temp"):
+            os.makedirs("./_out/temp")            
+        self.con = sql.connect("./_out/temp/data.db")
         self.cur = self.con.cursor()
 
     def create_tabel(self, table_name, *columns):
@@ -44,6 +42,7 @@ class Db:
             lst = self.cur.execute(f'SELECT {what} FROM {table_name}').fetchall()
         else:
             lst = self.cur.execute(f'SELECT {what} FROM {table_name} WHERE {where}').fetchall()
+        print(lst)
         return lst
 
     def kill_session(self):
