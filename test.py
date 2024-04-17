@@ -69,15 +69,15 @@ for i in lst:
         continue
     try:
         data = san.find_info(i)
-        print(data)
         san.find_alias(i)
         san.find_zone(i)
         san.find_switch(i)
         san.find_nsshowr(i)
         tables = san.find_nscamshow(i)
         san.find_fabric(i)
-    except Exception:
-            pass
+        san.find_errshow(i)
+    except Exception as e:
+        print(e)
     try:
         swt_name = data["switchName"]
         fb_name = data["Fabric Name"]

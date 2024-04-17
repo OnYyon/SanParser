@@ -38,8 +38,8 @@ class SanParser:
         self.lines["zoning"] = self.lines["zoning"].strip("ON ()")
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
-        self.db.create_tabel(f"data_{fb_name}_{swt_name}", self.lines.keys())
-        self.db.insert_into_table(f"data_{fb_name}_{swt_name}", self.lines.values())
+        self.db.create_tabel(f"data_{fb_name}_{swt_name}", " Text, ".join(self.lines.keys()) + " Text")
+        self.db.insert_into_table(f"data_{fb_name}_{swt_name}", *self.lines.values())
         return self.lines
 
     def find_zone(self, path_to_file):
@@ -96,6 +96,7 @@ class SanParser:
         for key, val in aliases.items():
             self.db.insert_into_table(f"alias_cfg_{fb_name}_{swt_name}", key, val)
 
+    # FIX: Correct split
     def find_switch(self, path_to_file):
         try:
             file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
@@ -118,12 +119,11 @@ class SanParser:
                 lst = line.split()
                 temp = "\" TEXT, \"".join(lst)
                 self.db.create_tabel(f"switch_{fb_name}_{swt_name}",
-                                     f"{temp} TEXT, Port_type TEXT, WWN TEXT, Comment TEXT")
+                                     f"\"{temp}\" TEXT, \"Port_type\" TEXT, \"WWN\" TEXT, \"Comment\" TEXT")
                 continue
             if "=" in line:
                 continue
             if flag:
-                print(line)
                 lst = line.strip().split(maxsplit=col)
                 lst_temp = lst[0:col]
                 port = "-"
@@ -143,8 +143,8 @@ class SanParser:
                             comment = "-"
                     else:
                         comment = str_temp
-                temp = "\", \"".join(lst_temp).strip()
-                if not self.db.insert_into_table(f"switch_{fb_name}_{swt_name}", temp, port, wwn, comment):
+                temp = "', '".join(lst_temp).strip()
+                if not self.db.insert_into_table(f'switch_{fb_name}_{swt_name}', temp, port, wwn, comment):
                     break
 
     def if_for_service(self, line, name):
@@ -183,7 +183,7 @@ class SanParser:
             # ag = "No"
             # port_symb = "-"
             try:
-                self.db.insert_into_table(f"{name}(Type, Pid, COS, PortName, NodeName)", "\", \"".join(temp))
+                self.db.insert_into_table(f"'{name}'(Type, Pid, COS, PortName, NodeName)", *temp)
             except Exception:
                 pass
             return
@@ -273,3 +273,36 @@ class SanParser:
                         self.db.insert_into_table(f"FabricInfo_{fb_name}_{swt_name}", str_sql, principal)
                     except Exception:
                         pass
+
+    def find_errshow(self, path_to_file):
+        try:
+            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}"), "*SSHOW_SYS*.txt")[0]
+        except IndexError:
+            print("Программа не нашла нужный файл")
+        else:
+            f = open(f"./_in/{path_to_file}/{file_name}")
+        flag_cor = False
+        micro_flag = False
+        swt_name = self.lines["switchName"]
+        fb_name = self.lines["Fabric Name"]
+        while True:
+            line = f.readline()
+            if "/fabos/cliexec/porterrshow:" in line:
+                flag_cor = True
+                self.db.create_tabel(f"PortErrShow_{fb_name}_{swt_name}", "port Text, frames_tx Text, "
+                                                                          "frames_rx Text, enc_in Text, crc_err Text, "
+                                                                          "crc_g_eof Text, too_shrt, too_long Text, "
+                                                                          "bad_eof Text, enc_out Text, disk_c3 Text, "
+                                                                          "link_fail Text, loss_sync Text, "
+                                                                          "loss_sig Text, frjt Text, fbsy Text, "
+                                                                          "c3timeout_tx Text, c3timeout_rx Text, "
+                                                                          "pcs_err Text, uncor_err")
+                continue
+            if flag_cor:
+                if "tx" in line:
+                    micro_flag = True
+                    continue
+            if micro_flag:
+                data = line.strip().replace(":", "").split()
+                if not self.db.insert_into_table(f"PortErrShow_{fb_name}_{swt_name}", *data):
+                    break
