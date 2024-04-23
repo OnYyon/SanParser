@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Загрузка файлов</h1>
+    <form class="login_form" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="photo">Добавте файл</label>
+        <input type="file" class="form-control-file" id="photo" name="dir" webkitdirectory directory multiple/>
+      </div>
+      <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+{% endblock %}
