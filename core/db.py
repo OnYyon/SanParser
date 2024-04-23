@@ -4,9 +4,7 @@ import sqlite3 as sql
 
 class Db:
     def __init__(self):
-        if not os.path.exists("./_out/temp"):
-            os.makedirs("./_out/temp")            
-        self.con = sql.connect("./_out/temp/data.db")
+        self.con = sql.connect("./db/data.db")
         self.cur = self.con.cursor()
 
     def create_tabel(self, table_name, columns):
@@ -19,7 +17,6 @@ class Db:
             pattern = "', '".join(args)
             if "(" in table_name:
                 table_name, columns = table_name.split("(", maxsplit=1)
-                # print(f"INSERT INTO {table_name}({columns} VALUES ('{pattern}');")
                 self.cur.execute(f"INSERT INTO {table_name}({columns} VALUES ('{pattern}');")
             else:
                 self.cur.execute(f"INSERT INTO '{table_name}' VALUES ('{pattern}');")

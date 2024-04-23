@@ -1,6 +1,5 @@
 import os
 import fnmatch
-from sqlite3 import OperationalError
 
 from core.db import Db
 
@@ -9,20 +8,22 @@ class SanParser:
     def __init__(self):
         self.lines = {}
         self.db = Db()
+        self.db.create_tabel("data_of_switchs", "SwitchName Text, FabricName Text, wwn Text")
 
     def find_info(self, path_to_file) -> dict:
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         flag = False
         self.lines = {}
         while True:
             line = f.readline()
             if "switchName:" in line:
                 flag = True
+                continue
             if flag:
                 self.lines[line.split(":")[0].strip()] = "".join(line.split(":", maxsplit=1)[1::]).strip()
             if "zoning" in line:
@@ -40,15 +41,16 @@ class SanParser:
         fb_name = self.lines["Fabric Name"]
         self.db.create_tabel(f"data_{fb_name}_{swt_name}", " Text, ".join(self.lines.keys()) + " Text")
         self.db.insert_into_table(f"data_{fb_name}_{swt_name}", *self.lines.values())
+        self.db.insert_into_table("data_of_switchs", swt_name, fb_name, self.lines["SwitchWwn"])
         return self.lines
 
     def find_zone(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         zones = {}
         while True:
             line = f.readline()
@@ -71,11 +73,11 @@ class SanParser:
 
     def find_alias(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         aliases = {}
         flag = False
         while True:
@@ -99,11 +101,11 @@ class SanParser:
     # FIX: Correct split
     def find_switch(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_SYS*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         flag = False
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
@@ -190,11 +192,11 @@ class SanParser:
 
     def find_nsshowr(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SERVICE*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_SERVICE*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         flag = False
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
@@ -213,11 +215,11 @@ class SanParser:
 
     def find_nscamshow(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_SERVICE*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_SERVICE*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         flag = False
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
@@ -226,7 +228,8 @@ class SanParser:
             if "nscamshow" in line.strip():
                 flag = True
                 continue
-            if "Switch entry for domain " in line: break
+            if "Switch entry for domain " in line:
+                break
             if flag:
                 if "Switch entry for" in line:
                     num = line.split()[-1]
@@ -242,11 +245,11 @@ class SanParser:
 
     def find_fabric(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}/"), "*SSHOW_FABRIC*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}/"), "*SSHOW_FABRIC*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         flag = False
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
@@ -276,11 +279,11 @@ class SanParser:
 
     def find_errshow(self, path_to_file):
         try:
-            file_name = fnmatch.filter(os.listdir(f"./_in/{path_to_file}"), "*SSHOW_SYS*.txt")[0]
+            file_name = fnmatch.filter(os.listdir(f"./uploads/{path_to_file}"), "*SSHOW_SYS*.txt")[0]
         except IndexError:
             print("Программа не нашла нужный файл")
         else:
-            f = open(f"./_in/{path_to_file}/{file_name}")
+            f = open(f"./uploads/{path_to_file}/{file_name}")
         flag_cor = False
         micro_flag = False
         swt_name = self.lines["switchName"]
