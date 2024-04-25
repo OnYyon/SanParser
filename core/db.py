@@ -22,7 +22,7 @@ class Db:
                 self.cur.execute(f"INSERT INTO '{table_name}' VALUES ('{pattern}');")
             self.con.commit()
         except Exception as e:
-            print(e)
+            # print(e)
             return False
         return True
 
@@ -37,9 +37,9 @@ class Db:
 
     def select(self, table_name, what, need_where=False, where=""):
         if not need_where:
-            lst = self.cur.execute(f'SELECT {what} FROM {table_name}').fetchall()
+            lst = self.cur.execute(f'SELECT {what} FROM "{table_name}"').fetchall()
         else:
-            lst = self.cur.execute(f'SELECT {what} FROM {table_name} WHERE {where}').fetchall()
+            lst = self.cur.execute(f'SELECT {what} FROM "{table_name}" WHERE {where}').fetchall()
         return lst
 
     def kill_session(self):

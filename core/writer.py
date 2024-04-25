@@ -19,7 +19,7 @@ class Writer:
                 worksheet.write(i, j, val)
 
     def write_switches(self, fb_name: str, swt_name: str, workbook) -> None:
-        config = self.db.select(f"data_{fb_name}_{swt_name}", "zoning")[0]
+        config = self.db.select(f"data_{fb_name}_{swt_name}", "zoning")[0][0]
         # nsShow
         worksheet = workbook.add_worksheet("nsShow")
         worksheet.write(0, 0, "Name:")
@@ -32,7 +32,8 @@ class Writer:
         worksheet.write(0, 3, f"{active_port}/{ports}")
         worksheet.write(1, 0, "IP:")
         res = self.db.select(f"FabricInfo_{fb_name}_{swt_name}", "Enet_IP_Addr", True,
-                             f"Name = '\"{swt_name}\"' OR Name = '>\"{swt_name}\"'")
+                             f"Name = '{swt_name}' OR Name = '>{swt_name}'")
+        res = list(map(lambda x: x[0], res))
         worksheet.write(1, 1, res[0])
         worksheet.write(1, 2, "Config:")
         worksheet.write(1, 3, config)
@@ -57,15 +58,17 @@ class Writer:
 
         # nscamShow
         names_ip = self.db.select(f"FabricInfo_{fb_name}_{swt_name}", "Name, Enet_IP_Addr")
-        for i, val in enumerate(names_ip):
-            if val[0] == swt_name:
-                del names_ip[i]
+        # for i, val in enumerate(names_ip):
+        #    if val[0] == swt_name:
+        #        del names_ip[i]
         res = self.db.select(f"FabricInfo_{fb_name}_{swt_name}", "Switch")
         switch = list(map(lambda x: x[0], res))
         switch = list(map(lambda x: x.replace(":", ""), switch))
+        print(len(names_ip), len(switch))
         for i, val in enumerate(switch):
             worksheet = workbook.add_worksheet(f"Switch{val}")
             worksheet.write(0, 0, "Name:")
+            print(len(names_ip), i)
             worksheet.write(0, 1, names_ip[i][0])
             worksheet.write(0, 2, "Ports:")
             res = self.db.select(f"switch_{fb_name}_{swt_name}", "Port_type", True, "State = \"Online\"")

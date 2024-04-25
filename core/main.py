@@ -21,9 +21,9 @@ class SanParser:
         self.lines = {}
         while True:
             line = f.readline()
+            # print(line)
             if "switchName:" in line:
                 flag = True
-                continue
             if flag:
                 self.lines[line.split(":")[0].strip()] = "".join(line.split(":", maxsplit=1)[1::]).strip()
             if "zoning" in line:
@@ -36,12 +36,13 @@ class SanParser:
             self.lines["Fabric Name"]
         except KeyError:
             self.lines["Fabric Name"] = "No"
+        print(self.lines)
         self.lines["zoning"] = self.lines["zoning"].strip("ON ()")
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
         self.db.create_tabel(f"data_{fb_name}_{swt_name}", " Text, ".join(self.lines.keys()) + " Text")
         self.db.insert_into_table(f"data_{fb_name}_{swt_name}", *self.lines.values())
-        self.db.insert_into_table("data_of_switchs", swt_name, fb_name, self.lines["SwitchWwn"])
+        self.db.insert_into_table("data_of_switchs", swt_name, fb_name, self.lines["switchWwn"])
         return self.lines
 
     def find_zone(self, path_to_file):

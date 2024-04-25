@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="accordion" id="accordionExample">
+        {% for k, val in data.items()%}
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#{{ k }}" aria-expanded="true" aria-controls="{{ k }}">
+                {{ k }}
+              </button>
+            </h2>
+            <div id="{{ k }}" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                  {% for j in val %}
+                    <div class="list-group">
+                      <a href="/result/{{ k }}/{{ j }}" class="list-group-item list-group-item-action">{{ j }}</a>
+                    </div>
+                  {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+    </div>
+{% endblock %}
