@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          {% for i in columns %}
+            <th>{{ i }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in data %}
+          <tr>
+            <th>{{i[0]}}</th>
+            {% for j in i[1:] %}
+              <td>{{ j }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}

@@ -21,7 +21,6 @@ class SanParser:
         self.lines = {}
         while True:
             line = f.readline()
-            # print(line)
             if "switchName:" in line:
                 flag = True
             if flag:
@@ -36,7 +35,6 @@ class SanParser:
             self.lines["Fabric Name"]
         except KeyError:
             self.lines["Fabric Name"] = "No"
-        print(self.lines)
         self.lines["zoning"] = self.lines["zoning"].strip("ON ()")
         swt_name = self.lines["switchName"]
         fb_name = self.lines["Fabric Name"]
@@ -275,8 +273,9 @@ class SanParser:
                     str_sql = "\', \'".join(data)
                     try:
                         self.db.insert_into_table(f"FabricInfo_{fb_name}_{swt_name}", str_sql, principal)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        print(e)
+                        break
 
     def find_errshow(self, path_to_file):
         try:

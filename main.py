@@ -15,29 +15,36 @@ def parsing():
     lst = list(filter(lambda x: not x.startswith("."), lst))
     if "__MACOSX" in lst:
         lst.remove("__MACOSX")
+    print(lst)
     for i in lst:
+        print(i)
         try:
             switch_or_director(i)
         except NotADirectoryError:
             continue
-        data = san.find_info(i)
-        san.find_alias(i)
-        san.find_zone(i)
-        san.find_switch(i)
-        san.find_nsshowr(i)
-        tables = san.find_nscamshow(i)
-        san.find_fabric(i)
-        san.find_errshow(i)
-        swt_name = data["switchName"]
-        fb_name = data["Fabric Name"]
-        if "_out" not in os.listdir():
-            os.mkdir("_out")
-        with open(f"./_out/Analysis_{fb_name}_{swt_name}.xlsx", "w") as f:
-            workbook = Workbook(f'./_out/Analysis_{fb_name}_{swt_name}.xlsx')
-        writer.write_fabric(fb_name, swt_name, workbook)
-        writer.write_switches(fb_name, swt_name, workbook)
-        writer.wrtie_zone(fb_name, swt_name, workbook)
-        workbook.close()
+        try:
+            data = san.find_info(i)
+            print("ok", i)
+            san.find_alias(i)
+            san.find_zone(i)
+            san.find_switch(i)
+            san.find_nsshowr(i)
+            tables = san.find_nscamshow(i)
+            san.find_fabric(i)
+            san.find_errshow(i)
+            swt_name = data["switchName"]
+            fb_name = data["Fabric Name"]
+            if "_out" not in os.listdir():
+                os.mkdir("_out")
+            with open(f"./_out/Analysis_{fb_name}_{swt_name}.xlsx", "w") as f:
+                workbook = Workbook(f'./_out/Analysis_{fb_name}_{swt_name}.xlsx')
+            writer.write_fabric(fb_name, swt_name, workbook)
+            writer.write_switches(fb_name, swt_name, workbook)
+            writer.wrtie_zone(fb_name, swt_name, workbook)
+            workbook.close()
+        except Exception as e:
+            print(e)
+            continue
 
 
 if __name__ == "__main__":
